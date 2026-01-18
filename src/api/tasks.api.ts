@@ -15,7 +15,7 @@ export const tasksApi = {
    * Create a new task
    */
   async createTask(data: CreateTaskRequest): Promise<TaskResponse> {
-    const response = await apiClient.post<TaskResponse>('/tasks', data);
+    const response = await apiClient.post<TaskResponse>('/api/tasks', data);
     return response.data;
   },
 
@@ -24,7 +24,7 @@ export const tasksApi = {
    */
   async getBoardTasks(boardId: string): Promise<TasksResponse> {
     const response = await apiClient.get<TasksResponse>(
-      `/boards/${boardId}/tasks`
+      `/api/boards/${boardId}/tasks`
     );
     return response.data;
   },
@@ -37,7 +37,7 @@ export const tasksApi = {
     data: UpdateTaskRequest
   ): Promise<TaskResponse> {
     const response = await apiClient.patch<TaskResponse>(
-      `/tasks/${taskId}`,
+      `/api/tasks/${taskId}`,
       data
     );
     return response.data;
@@ -48,7 +48,7 @@ export const tasksApi = {
    */
   async deleteTask(taskId: string): Promise<{ success: boolean; message: string }> {
     const response = await apiClient.delete<{ success: boolean; message: string }>(
-      `/tasks/${taskId}`
+      `/api/tasks/${taskId}`
     );
     return response.data;
   },

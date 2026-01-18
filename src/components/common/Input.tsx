@@ -7,6 +7,7 @@ import {
   TextInputProps,
   TouchableOpacity,
 } from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
 import { colors, spacing, typography } from '../../theme';
 
 interface InputProps extends TextInputProps {
@@ -47,9 +48,11 @@ export const Input: React.FC<InputProps> = ({
           <TouchableOpacity
             style={styles.iconContainer}
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
-            <Text style={styles.iconText}>
-              {isPasswordVisible ? '👁️' : '👁️‍🗨️'}
-            </Text>
+            <Feather
+              name={isPasswordVisible ? 'eye-off' : 'eye'}
+              size={20}
+              color={colors.textSecondary}
+            />
           </TouchableOpacity>
         )}
         {rightIcon && !showPasswordToggle && (
@@ -102,9 +105,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: spacing.md,
     padding: spacing.xs,
-  },
-  iconText: {
-    fontSize: 20,
   },
   errorText: {
     fontSize: typography.fontSize.xs,

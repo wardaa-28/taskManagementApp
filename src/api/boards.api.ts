@@ -15,7 +15,7 @@ export const boardsApi = {
    * Create a new board
    */
   async createBoard(data: CreateBoardRequest): Promise<BoardResponse> {
-    const response = await apiClient.post<BoardResponse>('/boards', data);
+    const response = await apiClient.post<BoardResponse>('/api/boards', data);
     return response.data;
   },
 
@@ -23,7 +23,7 @@ export const boardsApi = {
    * Get all boards for the authenticated user
    */
   async getBoards(): Promise<BoardsResponse> {
-    const response = await apiClient.get<BoardsResponse>('/boards');
+    const response = await apiClient.get<BoardsResponse>('/api/boards');
     return response.data;
   },
 
@@ -31,7 +31,7 @@ export const boardsApi = {
    * Get board by ID
    */
   async getBoardById(boardId: string): Promise<BoardResponse> {
-    const response = await apiClient.get<BoardResponse>(`/boards/${boardId}`);
+    const response = await apiClient.get<BoardResponse>(`/api/boards/${boardId}`);
     return response.data;
   },
 
@@ -40,7 +40,7 @@ export const boardsApi = {
    */
   async deleteBoard(boardId: string): Promise<{ success: boolean; message: string }> {
     const response = await apiClient.delete<{ success: boolean; message: string }>(
-      `/boards/${boardId}`
+      `/api/boards/${boardId}`
     );
     return response.data;
   },

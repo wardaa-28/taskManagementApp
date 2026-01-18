@@ -28,7 +28,8 @@ export interface AuthResponse {
   message: string;
   data: {
     user: User;
-    token: string;
+    accessToken: string; // Backend uses "accessToken" not "token"
+    token?: string; // Fallback for compatibility
   };
 }
 

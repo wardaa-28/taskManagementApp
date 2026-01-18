@@ -15,7 +15,7 @@ export const columnsApi = {
    * Create a new column
    */
   async createColumn(data: CreateColumnRequest): Promise<ColumnResponse> {
-    const response = await apiClient.post<ColumnResponse>('/columns', data);
+    const response = await apiClient.post<ColumnResponse>('/api/columns', data);
     return response.data;
   },
 
@@ -24,7 +24,7 @@ export const columnsApi = {
    */
   async getBoardColumns(boardId: string): Promise<ColumnsResponse> {
     const response = await apiClient.get<ColumnsResponse>(
-      `/boards/${boardId}/columns`
+      `/api/boards/${boardId}/columns`
     );
     return response.data;
   },
@@ -37,7 +37,7 @@ export const columnsApi = {
     data: UpdateColumnRequest
   ): Promise<ColumnResponse> {
     const response = await apiClient.patch<ColumnResponse>(
-      `/columns/${columnId}`,
+      `/api/columns/${columnId}`,
       data
     );
     return response.data;

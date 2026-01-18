@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Feather from 'react-native-vector-icons/Feather';
 import { colors, spacing, typography } from '../../theme';
 import { Button } from '../common/Button';
 import { Task, TaskStatus } from '../../types/task.types';
@@ -18,6 +19,8 @@ import { useTasks } from '../../hooks';
 interface TaskDetailModalProps {
   visible: boolean;
   task: Task | null;
+  columnId?: string; // Required when creating new task
+  boardId?: string; // Required when creating new task
   onClose: () => void;
   onSave?: () => void;
 }
@@ -25,40 +28,70 @@ interface TaskDetailModalProps {
 export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   visible,
   task,
+  columnId,
+  boardId,
   onClose,
   onSave,
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<TaskStatus>('TODO');
-  const { updateTask, deleteTask, isLoading } = useTasks(task?.board_id || null);
+  const boardIdToUse = task?.board_id || boardId || null;
+  const { createTask, updateTask, deleteTask, isLoading } = useTasks(boardIdToUse);
+
+  const isCreating = !task;
 
   useEffect(() => {
     if (task) {
       setTitle(task.title);
-      setDescription(task.description);
+      setDescription(task.description || '');
       setStatus(task.status);
+    } else {
+      // Reset form when creating new task
+      setTitle('');
+      setDescription('');
+      setStatus('TODO');
     }
-  }, [task]);
+  }, [task, visible]);
 
   const handleSave = async () => {
-    if (!task) return;
-
     if (!title.trim()) {
       Alert.alert('Error', 'Task title is required');
       return;
     }
 
     try {
-      await updateTask(task.id, {
-        title: title.trim(),
-        description: description.trim(),
-        status,
-      });
+      if (isCreating) {
+        // Create new task
+        if (!columnId || !boardId) {
+          Alert.alert('Error', 'Column ID and Board ID are required to create a task');
+          return;
+        }
+
+        // Get current column task count for position
+        // For now, set position to 0, the backend will handle proper positioning
+        const position = 0;
+
+        await createTask(
+          title.trim(),
+          description.trim() || undefined,
+          columnId,
+          boardId,
+          position
+        );
+      } else {
+        // Update existing task
+        if (!task) return;
+        await updateTask(task.id, {
+          title: title.trim(),
+          description: description.trim(),
+          status,
+        });
+      }
       onSave?.();
       onClose();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update task');
+      Alert.alert('Error', error.message || `Failed to ${isCreating ? 'create' : 'update'} task`);
     }
   };
 
@@ -91,8 +124,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   const statusOptions: TaskStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
 
-  if (!task) return null;
-
   return (
     <Modal
       visible={visible}
@@ -102,9 +133,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       <SafeAreaView style={styles.modalContainer} edges={['top', 'bottom']}>
         <View style={styles.modalContent}>
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Task Details</Text>
+            <Text style={styles.headerTitle}>{isCreating ? 'Create Task' : 'Task Details'}</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>✕</Text>
+              <Feather name="x" size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -159,19 +190,21 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           </ScrollView>
 
           <View style={styles.footer}>
+            {!isCreating && (
+              <Button
+                title="Delete"
+                onPress={handleDelete}
+                variant="danger"
+                size="medium"
+                style={styles.deleteButton}
+              />
+            )}
             <Button
-              title="Delete"
-              onPress={handleDelete}
-              variant="danger"
-              size="medium"
-              style={styles.deleteButton}
-            />
-            <Button
-              title="Save"
+              title={isCreating ? 'Create' : 'Save'}
               onPress={handleSave}
               variant="primary"
               size="medium"
-              style={styles.saveButton}
+              style={isCreating ? styles.saveButtonFull : styles.saveButton}
               loading={isLoading}
             />
           </View>
@@ -214,10 +247,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundSecondary,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  closeButtonText: {
-    fontSize: typography.fontSize.lg,
-    color: colors.textSecondary,
   },
   content: {
     flex: 1,
@@ -281,6 +310,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   saveButton: {
+    flex: 1,
+  },
+  saveButtonFull: {
     flex: 1,
   },
 });

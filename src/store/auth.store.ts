@@ -35,18 +35,60 @@ export const useAuthStore = create<AuthStore>((set) => ({
       set({ isLoading: true, error: null });
       const response = await authApi.login({ email, password });
       
-      // Save token and user
-      await tokenStorage.saveToken(response.data.token);
-      await tokenStorage.saveUser(response.data.user);
+      console.log('Login response:', JSON.stringify(response, null, 2));
       
+      // Handle different response structures
+      // authApi.login() returns response.data from axios, which is AuthResponse
+      // Backend response: { success, message, data: { user, accessToken } }
+      // Note: Backend uses "accessToken" not "token"
+      let token: string | undefined;
+      let user: User | undefined;
+      
+      // Check if response has nested data structure (AuthResponse format)
+      // Backend returns: { success, message, data: { user, accessToken } }
+      if (response.data && response.data.user) {
+        // Backend uses "accessToken" field name
+        token = (response.data as any).accessToken || response.data.token || (response.data as any).access_token;
+        user = response.data.user;
+      }
+      // Check if response is direct (token and user at root level)
+      else if ((response as any).token && (response as any).user) {
+        token = (response as any).token;
+        user = (response as any).user;
+      }
+      // Fallback: check for accessToken at root level
+      else if ((response as any).accessToken && (response as any).user) {
+        token = (response as any).accessToken;
+        user = (response as any).user;
+      }
+      
+      // Validate we have both token and user
+      if (!token || !user) {
+        console.error('=== INVALID RESPONSE STRUCTURE ===');
+        console.error('Full response:', JSON.stringify(response, null, 2));
+        console.error('Response.data:', JSON.stringify(response.data, null, 2));
+        console.error('Extracted token:', token);
+        console.error('Extracted user:', user);
+        console.error('=== END DEBUG INFO ===');
+        throw new Error('Invalid response: missing token or user data. Please check API response structure. Check console for full response details.');
+      }
+      
+      // Save token and user
+      await tokenStorage.saveToken(token);
+      await tokenStorage.saveUser(user);
+      
+      console.log('Setting authenticated state...');
       set({
-        user: response.data.user,
-        token: response.data.token,
+        user,
+        token,
         isAuthenticated: true,
         isLoading: false,
         error: null,
       });
+      
+      console.log('Auth state updated. isAuthenticated: true');
     } catch (error: any) {
+      console.error('Login error:', error);
       set({
         isLoading: false,
         error: error.message || 'Login failed',
@@ -61,18 +103,57 @@ export const useAuthStore = create<AuthStore>((set) => ({
       set({ isLoading: true, error: null });
       const response = await authApi.register({ name, email, password, avatar_url });
       
+      console.log('Register response:', JSON.stringify(response, null, 2));
+      
+      // Handle different response structures
+      // authApi.register() returns response.data from axios, which is AuthResponse
+      // Backend response: { success, message, data: { user, accessToken } }
+      // Note: Backend uses "accessToken" not "token"
+      let token: string | undefined;
+      let user: User | undefined;
+      
+      // Check if response has nested data structure (AuthResponse format)
+      // Backend returns: { success, message, data: { user, accessToken } }
+      if (response.data && response.data.user) {
+        // Backend uses "accessToken" field name
+        token = (response.data as any).accessToken || response.data.token || (response.data as any).access_token;
+        user = response.data.user;
+      }
+      // Check if response is direct (token and user at root level)
+      else if ((response as any).token && (response as any).user) {
+        token = (response as any).token;
+        user = (response as any).user;
+      }
+      // Fallback: check for accessToken at root level
+      else if ((response as any).accessToken && (response as any).user) {
+        token = (response as any).accessToken;
+        user = (response as any).user;
+      }
+      
+      // Validate we have both token and user
+      if (!token || !user) {
+        console.error('=== INVALID RESPONSE STRUCTURE ===');
+        console.error('Full response:', JSON.stringify(response, null, 2));
+        console.error('Response.data:', JSON.stringify(response.data, null, 2));
+        console.error('Extracted token:', token);
+        console.error('Extracted user:', user);
+        console.error('=== END DEBUG INFO ===');
+        throw new Error('Invalid response: missing token or user data. Please check API response structure. Check console for full response details.');
+      }
+      
       // Save token and user
-      await tokenStorage.saveToken(response.data.token);
-      await tokenStorage.saveUser(response.data.user);
+      await tokenStorage.saveToken(token);
+      await tokenStorage.saveUser(user);
       
       set({
-        user: response.data.user,
-        token: response.data.token,
+        user,
+        token,
         isAuthenticated: true,
         isLoading: false,
         error: null,
       });
     } catch (error: any) {
+      console.error('Register error:', error);
       set({
         isLoading: false,
         error: error.message || 'Registration failed',

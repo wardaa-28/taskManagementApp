@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useBoards } from '../hooks';
 import { BoardCard } from '../components/BoardCard';
 import { CreateBoardModal } from '../components/Modals/CreateBoardModal';
@@ -43,7 +45,12 @@ export const BoardsScreen: React.FC<BoardsScreenProps> = ({ navigation }) => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Text style={styles.emptyStateIcon}>📋</Text>
+      <MaterialCommunityIcons
+        name="clipboard-text-outline"
+        size={64}
+        color={colors.textSecondary}
+        style={styles.emptyStateIcon}
+      />
       <Text style={styles.emptyStateTitle}>No Boards Yet</Text>
       <Text style={styles.emptyStateText}>
         Create your first board to get started with task management
@@ -88,7 +95,7 @@ export const BoardsScreen: React.FC<BoardsScreenProps> = ({ navigation }) => {
         style={styles.fab}
         onPress={() => setCreateModalVisible(true)}
         activeOpacity={0.8}>
-        <Text style={styles.fabText}>+</Text>
+        <Feather name="plus" size={28} color={colors.textInverse} />
       </TouchableOpacity>
 
     </SafeAreaView>
@@ -124,7 +131,6 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   emptyStateIcon: {
-    fontSize: 64,
     marginBottom: spacing.lg,
   },
   emptyStateTitle: {
@@ -168,10 +174,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
-  },
-  fabText: {
-    fontSize: typography.fontSize.xxxl,
-    color: colors.textInverse,
-    fontWeight: typography.fontWeight.bold,
   },
 });

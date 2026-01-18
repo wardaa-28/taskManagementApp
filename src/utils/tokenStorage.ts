@@ -14,6 +14,10 @@ export const tokenStorage = {
    */
   async saveToken(token: string): Promise<void> {
     try {
+      if (!token) {
+        console.warn('Attempted to save undefined/null token. Skipping.');
+        return;
+      }
       await AsyncStorage.setItem(TOKEN_KEY, token);
     } catch (error) {
       console.error('Error saving token:', error);
@@ -50,6 +54,10 @@ export const tokenStorage = {
    */
   async saveUser(user: any): Promise<void> {
     try {
+      if (!user) {
+        console.warn('Attempted to save undefined/null user. Skipping.');
+        return;
+      }
       await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
     } catch (error) {
       console.error('Error saving user:', error);

@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
 import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
 } from 'react-native-draggable-flatlist';
+import Feather from 'react-native-vector-icons/Feather';
 import { colors, spacing, typography } from '../theme';
 import { Task } from '../types/task.types';
 import { TaskCard } from './TaskCard';
@@ -12,6 +13,7 @@ interface ColumnProps {
   title: string;
   tasks: Task[];
   onTaskPress: (task: Task) => void;
+  onAddTask?: (columnId: string) => void;
   onDragEnd: (data: Task[]) => void;
   columnId: string;
   boardId: string;
@@ -22,7 +24,9 @@ export const Column: React.FC<ColumnProps> = ({
   title,
   tasks,
   onTaskPress,
+  onAddTask,
   onDragEnd,
+  columnId,
   style,
 }) => {
   const getColumnColor = (): string => {
@@ -39,14 +43,15 @@ export const Column: React.FC<ColumnProps> = ({
   const renderItem = ({ item, drag, isActive }: RenderItemParams<Task>) => {
     return (
       <ScaleDecorator>
-        <View
+        <TouchableOpacity
           style={[
             styles.taskWrapper,
             isActive && styles.taskWrapperActive,
           ]}
-          onLongPress={drag}>
+          onLongPress={drag}
+          activeOpacity={0.8}>
           <TaskCard task={item} onPress={() => onTaskPress(item)} />
-        </View>
+        </TouchableOpacity>
       </ScaleDecorator>
     );
   };
@@ -72,6 +77,15 @@ export const Column: React.FC<ColumnProps> = ({
           contentContainerStyle={styles.listContent}
           scrollEnabled={false}
         />
+      )}
+      {onAddTask && (
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => onAddTask(columnId)}
+          activeOpacity={0.7}>
+          <Feather name="plus" size={18} color={colors.primary} />
+          <Text style={styles.addButtonText}>Add Task</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -127,5 +141,23 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: typography.fontSize.sm,
     color: colors.textTertiary,
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.sm,
+    marginTop: spacing.sm,
+    backgroundColor: colors.background,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+  },
+  addButtonText: {
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.primary,
+    marginLeft: spacing.xs,
   },
 });

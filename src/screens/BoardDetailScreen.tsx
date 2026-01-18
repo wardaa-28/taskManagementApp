@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Feather from 'react-native-vector-icons/Feather';
 import { useBoards, useColumns, useTasks } from '../hooks';
 import { Column } from '../components/Column';
 import { TaskDetailModal } from '../components/Modals/TaskDetailModal';
@@ -35,6 +36,7 @@ export const BoardDetailScreen: React.FC<BoardDetailScreenProps> = ({
   } = useTasks(boardId);
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedColumnId, setSelectedColumnId] = useState<string | null>(null);
   const [taskModalVisible, setTaskModalVisible] = useState(false);
 
   // Fetch board, columns, and tasks
@@ -43,8 +45,8 @@ export const BoardDetailScreen: React.FC<BoardDetailScreenProps> = ({
       try {
         await Promise.all([
           getBoardById(boardId),
-          fetchBoardColumns(),
-          fetchBoardTasks(),
+          fetchBoardColumns(boardId),
+          fetchBoardTasks(boardId),
         ]);
       } catch (error) {
         console.error('Error loading board data:', error);
@@ -55,6 +57,13 @@ export const BoardDetailScreen: React.FC<BoardDetailScreenProps> = ({
 
   const handleTaskPress = (task: Task) => {
     setSelectedTask(task);
+    setSelectedColumnId(null);
+    setTaskModalVisible(true);
+  };
+
+  const handleAddTask = (columnId: string) => {
+    setSelectedTask(null);
+    setSelectedColumnId(columnId);
     setTaskModalVisible(true);
   };
 
@@ -108,7 +117,7 @@ export const BoardDetailScreen: React.FC<BoardDetailScreenProps> = ({
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>←</Text>
+          <Feather name="arrow-left" size={24} color={colors.primary} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>
@@ -140,6 +149,7 @@ export const BoardDetailScreen: React.FC<BoardDetailScreenProps> = ({
                 title={column.title}
                 tasks={columnTasks}
                 onTaskPress={handleTaskPress}
+                onAddTask={handleAddTask}
                 onDragEnd={(data) => handleDragEnd(column.id, data)}
                 columnId={column.id}
                 boardId={boardId}
@@ -152,12 +162,15 @@ export const BoardDetailScreen: React.FC<BoardDetailScreenProps> = ({
       <TaskDetailModal
         visible={taskModalVisible}
         task={selectedTask}
+        columnId={selectedColumnId || undefined}
+        boardId={boardId}
         onClose={() => {
           setTaskModalVisible(false);
           setSelectedTask(null);
+          setSelectedColumnId(null);
         }}
         onSave={() => {
-          fetchBoardTasks();
+          fetchBoardTasks(boardId);
         }}
       />
     </SafeAreaView>
@@ -183,11 +196,6 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  backButtonText: {
-    fontSize: typography.fontSize.xl,
-    color: colors.primary,
-    fontWeight: typography.fontWeight.bold,
   },
   headerContent: {
     flex: 1,

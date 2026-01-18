@@ -17,7 +17,7 @@ export const membersApi = {
     data: AddMemberRequest
   ): Promise<{ success: boolean; message: string; data: any }> {
     const response = await apiClient.post<{ success: boolean; message: string; data: any }>(
-      `/boards/${boardId}/members`,
+      `/api/boards/${boardId}/members`,
       data
     );
     return response.data;
@@ -28,7 +28,7 @@ export const membersApi = {
    */
   async getBoardMembers(boardId: string): Promise<MembersResponse> {
     const response = await apiClient.get<MembersResponse>(
-      `/boards/${boardId}/members`
+      `/api/boards/${boardId}/members`
     );
     return response.data;
   },

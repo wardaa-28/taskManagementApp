@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Feather from 'react-native-vector-icons/Feather';
 import { colors, spacing, typography } from '../../theme';
 import { Button } from '../common/Button';
 import { useBoards } from '../../hooks';
@@ -59,7 +60,7 @@ export const CreateBoardModal: React.FC<CreateBoardModalProps> = ({
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Create New Board</Text>
             <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>✕</Text>
+              <Feather name="x" size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -146,10 +147,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundSecondary,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  closeButtonText: {
-    fontSize: typography.fontSize.lg,
-    color: colors.textSecondary,
   },
   content: {
     padding: spacing.lg,
